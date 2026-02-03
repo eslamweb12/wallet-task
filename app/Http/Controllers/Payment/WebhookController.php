@@ -15,17 +15,30 @@ class WebhookController extends BaseController
 {
     public function receive(Request $request, WalletService $walletService)
     {
-        $bankName = $request->header('BankName');
-        $payload  = $request->getContent();
+        $bankName = strtolower($request->header('BankName'));
+
+        $payload = match ($bankName) {
+            'acme'    => $request->input('payload'),   // JSON
+            'paytech' => $request->input('payload'),       // RAW / XML / TEXT
+            default   => throw new \Exception('Unsupported bank'),
+        };
+
+        if (!$payload) {
+            return response()->json([
+                'message' => 'Missing payload'
+            ], 422);
+        }
 
         $parser = BankWebhookFactory::make($bankName);
         $transactions = $parser->parse($payload);
+
 
         foreach ($transactions as $transaction) {
             try {
                 $walletService->handle($transaction);
             } catch (\Throwable $e) {
                 Log::error('Wallet webhook error', [
+                    'bank'  => $bankName,
                     'error' => $e->getMessage(),
                     'data'  => $transaction,
                 ]);
@@ -37,17 +50,17 @@ class WebhookController extends BaseController
         ]);
     }
 
-    public function send(XmlRequest $request){
+    public function send(XmlRequest $request)
+    {
         $data = $request->validated();
 
-        $data['Refrence']='TX-' . Str::uuid();
+        $data['reference'] = 'TX-' . Str::uuid();  // ✅ صح
         $data['date'] = now()->format('Y-m-d H:i:sP');
 
-        $xmlBuild=new XmlBuilderService($data);
-        $xml=$xmlBuild->build();
+        $xmlBuild = new XmlBuilderService();
+        $xml = $xmlBuild->build($data);
 
-        return response($xml,200)->header('Content-Type', 'application/xml');
-
-
+        return response($xml, 200)->header('Content-Type', 'application/xml');
     }
+
 }

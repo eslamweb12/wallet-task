@@ -3,6 +3,7 @@
 namespace App\Services\Parsers;
 
 use App\Interfaces\WebhookInterface;
+use Exception;
 
 class AcmeParser implements WebhookInterface
 {
@@ -12,16 +13,29 @@ class AcmeParser implements WebhookInterface
         $transactions = [];
 
         foreach ($lines as $line) {
-            [$amount, $bankReference, $date, $walletReference] = explode('//', $line);
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            $parts = explode('//', $line);
+
+            if (count($parts) !== 3) {
+                throw new Exception("Invalid Acme transaction format: {$line}");
+            }
+
+            [$amount, $bankReference, $walletReference] = $parts;
 
             $transactions[] = [
-                'wallet_reference' => $walletReference,
-                'reference'        => $bankReference, // 👈 مهم
+
+                'reference'        => trim($bankReference),
                 'amount'           => (float) str_replace(',', '.', $amount),
                 'type'             => 'credit',
                 'bank'             => 'acme',
             ];
         }
+
 
         return $transactions;
     }

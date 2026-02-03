@@ -9,8 +9,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/webhook/send', [\App\Http\Controllers\Payment\WebhookController::class, 'send']);
-});
-Route::get('/register', [\App\Http\Controllers\User\UserController::class, 'register']);
+    Route::post('/webhook/send', [\App\Http\Controllers\Payment\WebhookController::class, 'send']);
+
+Route::get('/webhook/recive', [\App\Http\Controllers\Payment\WebhookController::class, 'receive']);
+
+Route::post('/register', [\App\Http\Controllers\User\UserController::class, 'register']);
 Route::post('/login', [\App\Http\Controllers\User\UserController::class, 'login']);

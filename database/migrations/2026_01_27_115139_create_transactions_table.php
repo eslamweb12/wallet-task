@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Wallet::class)->cascadeOnDelete();
             $table->string('reference')->unique();
             $table->decimal('amount', 15, 2);
             $table->string('type')->nullable();
