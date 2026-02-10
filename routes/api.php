@@ -15,3 +15,4 @@ Route::get('/webhook/recive', [\App\Http\Controllers\Payment\WebhookController::
 
 Route::post('/register', [\App\Http\Controllers\User\UserController::class, 'register']);
 Route::post('/login', [\App\Http\Controllers\User\UserController::class, 'login']);
+Route::post('/send', [\App\Http\Controllers\NotificationController::class, 'send']);
