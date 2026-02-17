@@ -15,7 +15,10 @@ Route::get('/webhook/recive', [\App\Http\Controllers\Payment\WebhookController::
 
 Route::post('/register', [\App\Http\Controllers\User\UserController::class, 'register']);
 Route::post('/login', [\App\Http\Controllers\User\UserController::class, 'login']);
+
+//factory method design pattern  routes
 Route::post('/send', [\App\Http\Controllers\NotificationController::class, 'send']);
 
+////builder design pattern routes
 
 Route::post('products',[\App\Http\Controllers\BuilderDesignPatternController::class,'create']);
